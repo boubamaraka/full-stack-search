@@ -90,7 +90,40 @@ For larger or more time-intensive changes, you're welcome to outline your ideas 
 
 <!-- Write-up/conclusion section -->
 
-_When all the behaviour is implemented, feel free to add some observations or conclusions you like to share in the section_
+# Observations and Conclusions
+
+### Component Structure
+- The project is well-structured with modular components for different pages:
+  - `Home`
+  - `HotelPage`
+  - `CountryPage`
+  - `CityPage`
+- This modularity enhances maintainability and readability.
+
+### API Integration
+- The components effectively fetch data from an API using the `fetch` function with `async/await`.
+- This ensures asynchronous data handling, improving performance and responsiveness.
+
+### Testing
+- Comprehensive tests cover various aspects of the application, including:
+  - Rendering search results.
+  - Navigation.
+- The use of `@testing-library/react` and `vitest` ensures reliable and easy-to-write tests.
+- Mock fetch implementations simulate API responses, making tests faster and more reliable by avoiding actual network requests.
+
+### User Experience
+- The application provides a good user experience by:
+  - Displaying loading messages during data fetching.
+  - Correctly rendering fetched data.
+- This keeps users informed and ensures smooth interaction.
+
+### Code Quality
+- The code is:
+  - Clean and well-organized.
+  - Consistently formatted.
+  - Using meaningful variable names.
+- This enhances readability and understanding.
+
 
 ### Database structure
 
