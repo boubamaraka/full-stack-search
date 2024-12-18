@@ -67,6 +67,7 @@ describe('Home', () => {
   testCases.forEach(({ description, searchValue, mockResponse, expectedResults }) => {
     it(description, async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockResponse,
       });
 

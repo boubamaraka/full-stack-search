@@ -21,6 +21,7 @@ afterAll(() => {
 describe('CityPage', () => {
   it('renders city details and back button', async () => {
     mockFetch.mockResolvedValueOnce({
+      ok: true, // Response for successful request
       json: async () => ({
         _id: '1',
         name: 'Bangkok',
@@ -35,7 +36,7 @@ describe('CityPage', () => {
       </MemoryRouter>
     );
 
-    // Verify loading state
+    // check loading state
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
     // Wait for the city details to be rendered
@@ -43,10 +44,34 @@ describe('CityPage', () => {
       expect(screen.getByText('Bangkok')).toBeInTheDocument();
     });
 
-    // Verify city details
+    // check city details
     expect(screen.getByText('Bangkok')).toBeInTheDocument();
 
-    // Verify back button
+    // check back button
     expect(screen.getByRole('button', { name: /go back/i })).toBeInTheDocument();
+  });
+  
+  it('shows error when city is not found', async () => {
+    // Mock a 404 response
+    mockFetch.mockResolvedValueOnce({
+      ok: false,  // false response to indicate an error
+      status: 404,
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/cities/InvalidCity']}>
+        <Routes>
+          <Route path="/cities/:name" element={<CityPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    // check loading state
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+
+    // error message should be displayed
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to fetch city data/i)).toBeInTheDocument();
+    });
   });
 });

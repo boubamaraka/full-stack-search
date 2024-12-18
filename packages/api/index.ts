@@ -30,7 +30,6 @@ const connectToDatabase = async () => {
 
 app.get('/hotels', async (req, res) => {
   try {
-    console.log('Successfully connected to MongoDB!');
     const collection = db.collection('hotels');
     res.send(await collection.find().toArray());
   } catch (error) {
@@ -59,7 +58,7 @@ app.get('/cities/:name', async (req, res) => {
   const { name } = req.params;
   try {
     const collection = db.collection('cities');
-    const city = await collection.findOne({ name });
+    const city = await collection.findOne({ name: { $regex: new RegExp(name, 'i') } });
     if (city) {
       res.send(city);
     } else {
@@ -73,9 +72,11 @@ app.get('/cities/:name', async (req, res) => {
 
 app.get('/countries/:name', async (req, res) => {
   const { name } = req.params;
+  console.log('name', name);
   try {
     const collection = db.collection('countries');
-    const country = await collection.findOne({ country: name });
+    const country = await collection.findOne({ country: { $regex: new RegExp(`^${name}$`, 'i') } });
+    console.log('country', country);
     if (country) {
       res.send(country);
     } else {

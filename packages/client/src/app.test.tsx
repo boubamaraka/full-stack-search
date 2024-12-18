@@ -10,6 +10,7 @@ import { API_URL } from './config';
 const mockFetch = vi.fn();
 
 const mockHotelsResponse = {
+  ok: true,
   json: async () => [
     {
       _id: '1',
@@ -29,6 +30,7 @@ const mockHotelsResponse = {
 };
 
 const mockHotelDetailResponse = {
+  ok: true,
   json: async () => ({
     _id: '1',
     chain_name: 'United Hotels Group',
@@ -89,14 +91,15 @@ describe('App', () => {
 
   it('navigates to hotel page', async () => {
     mockFetch.mockImplementation((url) => {
-      if (url.startsWith(`${API_URL}/hotels`)) {
+      if (url === `${API_URL}/hotels`) {
         return Promise.resolve(mockHotelsResponse);
-      } else if (url.startsWith(`${API_URL}/hotels/1`)) {
+      } 
+     if (url === `${API_URL}/hotels/1`) {
         return Promise.resolve(mockHotelDetailResponse);
       }
       return Promise.reject(new Error('not found'));
     });
-
+  
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -105,23 +108,35 @@ describe('App', () => {
         </Routes>
       </MemoryRouter>
     );
-
+  
+    // Perform search on Home page
     fireEvent.change(screen.getByPlaceholderText(/search accommodation/i), {
       target: { value: 'united' },
     });
-
-    expect(await screen.findByText(/United Plaza Hotel/i)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText(/United Plaza Hotel/i));
+  
+    // Verify search results
     await waitFor(() => {
-      // expect(screen.getByText(/United Hotels Group/i)).toBeInTheDocument();
-      // expect(screen.getByText(/123 Main St/i)).toBeInTheDocument();
-      // expect(screen.getByText(/Miami/i)).toBeInTheDocument();
-      // expect(screen.getByText(/FL/i)).toBeInTheDocument();
-      // expect(screen.getByText(/12345/i)).toBeInTheDocument();
-      // expect(screen.getByText(/United States/i)).toBeInTheDocument();
-      // expect(screen.getByText(/5/i)).toBeInTheDocument();
+      expect(screen.getByText(/United Plaza Hotel/i)).toBeInTheDocument();
     });
+  
+    // Navigate to HotelPage
+    fireEvent.click(screen.getByText(/United Plaza Hotel/i));
+    
+    // Verify loading state
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+
+    // Verify hotel details
+    await waitFor(() => {
+      expect(screen.getByText(/United Hotels Group/i)).toBeInTheDocument();
+      expect(screen.getByText(/123 Main St/i)).toBeInTheDocument();
+      expect(screen.getByText(/Miami/i)).toBeInTheDocument();
+      expect(screen.getByText(/FL/i)).toBeInTheDocument();
+      expect(screen.getByText(/12345/i)).toBeInTheDocument();
+      expect(screen.getByText(/United States/i)).toBeInTheDocument();
+    });
+  
+    // Verify BackButton presence
+    expect(screen.getByRole('button', { name: /go back/i })).toBeInTheDocument();
   });
 
   it('navigates to country page', async () => {
@@ -130,6 +145,7 @@ describe('App', () => {
         return Promise.resolve(mockHotelsResponse);
       } else if (url.startsWith(`${API_URL}/countries/United States`)) {
         return Promise.resolve({
+          ok: true,
           json: async () => ({
             _id: '1',
             country: 'United States',
@@ -169,6 +185,7 @@ describe('App', () => {
         return Promise.resolve(mockHotelsResponse);
       } else if (url.startsWith(`${API_URL}/cities/Miami`)) {
         return Promise.resolve({
+          ok: true,
           json: async () => ({
             _id: '1',
             name: 'Miami',

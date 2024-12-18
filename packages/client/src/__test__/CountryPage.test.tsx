@@ -21,11 +21,12 @@ afterAll(() => {
 describe('CountryPage', () => {
   it('renders country details and back button', async () => {
     mockFetch.mockResolvedValueOnce({
-      json: async () => ({
+    ok: true, // Response for successful request
+    json: async () => ({
         _id: '1',
         country: 'Thailand',
         countryisocode: 'TH',
-      }),
+    }),
     });
 
     render(
@@ -36,7 +37,7 @@ describe('CountryPage', () => {
       </MemoryRouter>
     );
 
-    // Verify loading state
+    // check loading state
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
     // Wait for the country details to be rendered
@@ -44,10 +45,36 @@ describe('CountryPage', () => {
       expect(screen.getByText('Thailand')).toBeInTheDocument();
     });
 
-    // Verify country details
+    // check country details
     expect(screen.getByText(/ISO Code: TH/)).toBeInTheDocument();
 
-    // Verify back button
+    // check back button
     expect(screen.getByRole('button', { name: /go back/i })).toBeInTheDocument();
   });
+  
+  it('shows error when country is not found', async () => {
+    // Mock a 404 response
+    mockFetch.mockResolvedValueOnce({
+      ok: false, // false response to indicate an error
+      status: 404,
+      json: async () => ({ message: 'Country not found' }),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/countries/InvalidCountry']}>
+        <Routes>
+          <Route path="/countries/:name" element={<CountryPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    // check loading state
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+
+    // Wait for error message
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to fetch country data/i)).toBeInTheDocument();
+    });
+  });
+  
 });
